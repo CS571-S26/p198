@@ -9,17 +9,21 @@ function Layout() {
         <div className="container-fluid">
           <Link className="navbar-brand" to="/">p198</Link>
           <div className="navbar-nav">
-            <Link className="nav-link" to="/">Home</Link>
-            <Link className="nav-link" to="/about">About</Link>
+            <Link className="nav-link" to="/books">Books</Link>
+            <Link className="nav-link" to="/vote">Vote</Link>
+            <Link className="nav-link" to="/progress">Progress</Link>
           </div>
         </div>
       </nav>
       <div className="container mt-4">
         <Routes>
           <Route index element={<HomePage />} />
+          <Route path="books" element={<BooksPage />} />
+          <Route path="vote" element={<VotingPage />} />
+          <Route path="progress" element={<ProgressPage />} />
           <Route path="about" element={<AboutPage />} />
           <Route path="*" element={<NotFoundPage />} />
-        </Routes>
+      </Routes>
       </div>
     </div>
   )
@@ -28,8 +32,8 @@ function Layout() {
 function HomePage() {
   return (
     <div>
-      <h1>Chiara's Web Project</h1>
-      <p>Welcome to my web project!</p>
+      <h1>Book Club Hub</h1>
+      <p>Track books, vote on future reads, and monitor your progress!</p>
     </div>
   )
 }
@@ -39,6 +43,19 @@ function AboutPage() {
     <div>
       <h1>About</h1>
       <p>This is my p198 project.</p>
+    </div>
+  )
+}
+
+function BooksPage() {
+  const [books, setBooks] = useState(["The Great Gatsby"])
+
+  return (
+    <div>
+      <h2>Books</h2>
+      <ul>
+        {books.map((book, i) => <li key={i}>{book}</li>)}
+      </ul>
     </div>
   )
 }
