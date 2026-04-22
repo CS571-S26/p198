@@ -40,6 +40,6 @@ The production build outputs to `docs`, which can be served by GitHub Pages.
 
 ## GitHub Pages Hosting Notes
 
-- Vite base path is configured as `/p128/` in `vite.config.js`
+- Vite base path is configured as `/p198/` in `vite.config.js`
 - If your repository name is different, update that value to match your repo
 - Push the generated `docs` folder and configure GitHub Pages to serve from it
