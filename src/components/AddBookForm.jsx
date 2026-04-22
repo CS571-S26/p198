@@ -11,7 +11,7 @@ const blankForm = {
   comments: '',
 }
 
-function AddBookForm({ onAddBook }) {
+function AddBookForm({ onAddBook, currentUser }) {
   const [formData, setFormData] = useState(blankForm)
 
   const handleChange = (event) => {
@@ -29,6 +29,7 @@ function AddBookForm({ onAddBook }) {
     onAddBook({
       ...formData,
       rating: Number(formData.rating) || 0,
+      addedBy: currentUser,
     })
     setFormData(blankForm)
   }
@@ -37,6 +38,7 @@ function AddBookForm({ onAddBook }) {
     <Card className="mb-4">
       <Card.Header>Add a Completed Club Book</Card.Header>
       <Card.Body>
+        <p className="text-muted mb-3">Posting as @{currentUser}</p>
         <Form onSubmit={handleSubmit}>
           <Row className="g-3">
             <Col md={6}>

@@ -4,7 +4,7 @@ import PageHeader from '../components/PageHeader'
 import SuggestionCard from '../components/SuggestionCard'
 import SuggestionForm from '../components/SuggestionForm'
 
-function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentVoteMonth }) {
+function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentVoteMonth, currentUser }) {
   const monthlySuggestions = useMemo(
     () =>
       suggestions.filter(
@@ -32,6 +32,7 @@ function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentV
       {
         id: crypto.randomUUID(),
         ...suggestionDraft,
+        proposer: currentUser,
         votes: 0,
         status: 'suggested',
       },
@@ -77,7 +78,7 @@ function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentV
         title="Monthly Suggestions & Voting"
         subtitle="Members can submit proposals, vote, and preserve non-selected books for later."
       />
-      <SuggestionForm onAddSuggestion={addSuggestion} />
+      <SuggestionForm onAddSuggestion={addSuggestion} currentUser={currentUser} />
 
       <Form.Group className="mb-3" controlId="votingMonth">
         <Form.Label>Active Voting Month</Form.Label>

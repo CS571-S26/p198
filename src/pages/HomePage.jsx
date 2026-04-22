@@ -3,6 +3,7 @@ import DashboardStats from '../components/DashboardStats'
 import PageHeader from '../components/PageHeader'
 
 function HomePage({
+  currentUser,
   books,
   currentMonthSuggestions,
   futureReads,
@@ -13,7 +14,7 @@ function HomePage({
     <>
       <PageHeader
         title="Book Club Hub"
-        subtitle="A shared place to archive books, vote on upcoming reads, and keep each other accountable."
+        subtitle={`Welcome @${currentUser}. Archive books, vote on upcoming reads, and track progress together.`}
       />
 
       <DashboardStats

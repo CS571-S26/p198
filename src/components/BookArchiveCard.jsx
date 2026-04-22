@@ -27,6 +27,10 @@ function BookArchiveCard({ book, onSaveEdit }) {
         <p className="small mb-2">
           Finished: {book.dateRead || 'Not added'} | Group Rating: {Number(book.rating).toFixed(1)} / 5
         </p>
+        <p className="small text-muted mb-2">
+          Added by @{book.addedBy || 'unknown'}
+          {book.lastEditedBy ? ` | Last edited by @${book.lastEditedBy}` : ''}
+        </p>
         <p className="mb-2">
           <strong>Discussion Prompt:</strong> {book.questions || 'No questions added yet.'}
         </p>

@@ -3,7 +3,7 @@ import AddBookForm from '../components/AddBookForm'
 import BookArchiveCard from '../components/BookArchiveCard'
 import PageHeader from '../components/PageHeader'
 
-function ArchivePage({ books, setBooks }) {
+function ArchivePage({ books, setBooks, currentUser }) {
   const addBook = (bookDraft) => {
     const nextBook = {
       id: crypto.randomUUID(),
@@ -23,6 +23,7 @@ function ArchivePage({ books, setBooks }) {
         return {
           ...book,
           ...updates,
+          lastEditedBy: currentUser,
         }
       }),
     )
@@ -34,13 +35,19 @@ function ArchivePage({ books, setBooks }) {
         title="Reading Archive"
         subtitle="Save your club history with dates, ratings, discussion prompts, and comments."
       />
-      <AddBookForm onAddBook={addBook} />
+      <AddBookForm onAddBook={addBook} currentUser={currentUser} />
       <Row className="g-3">
-        {books.map((book) => (
-          <Col key={book.id} lg={6}>
-            <BookArchiveCard book={book} onSaveEdit={saveBookEdits} />
+        {books.length > 0 ? (
+          books.map((book) => (
+            <Col key={book.id} lg={6}>
+              <BookArchiveCard book={book} onSaveEdit={saveBookEdits} />
+            </Col>
+          ))
+        ) : (
+          <Col>
+            <p className="text-muted">No books in the archive yet. Add your first completed read above.</p>
           </Col>
-        ))}
+        )}
       </Row>
     </>
   )

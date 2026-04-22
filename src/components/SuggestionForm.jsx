@@ -4,11 +4,10 @@ import { Button, Card, Col, Form, Row } from 'react-bootstrap'
 const emptySuggestion = {
   title: '',
   author: '',
-  proposer: '',
   month: '',
 }
 
-function SuggestionForm({ onAddSuggestion }) {
+function SuggestionForm({ onAddSuggestion, currentUser }) {
   const [formData, setFormData] = useState(emptySuggestion)
 
   const handleChange = (event) => {
@@ -19,7 +18,7 @@ function SuggestionForm({ onAddSuggestion }) {
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    if (!formData.title.trim() || !formData.proposer.trim() || !formData.month.trim()) {
+    if (!formData.title.trim() || !formData.month.trim()) {
       return
     }
 
@@ -31,6 +30,7 @@ function SuggestionForm({ onAddSuggestion }) {
     <Card className="mb-4">
       <Card.Header>Submit a Monthly Proposal</Card.Header>
       <Card.Body>
+        <p className="text-muted mb-3">Posting as @{currentUser}</p>
         <Form onSubmit={handleSubmit}>
           <Row className="g-3">
             <Col md={6}>
@@ -52,18 +52,6 @@ function SuggestionForm({ onAddSuggestion }) {
                   name="author"
                   value={formData.author}
                   placeholder="Author"
-                  onChange={handleChange}
-                />
-              </Form.Group>
-            </Col>
-            <Col md={6}>
-              <Form.Group controlId="proposalMember">
-                <Form.Label>Proposed By</Form.Label>
-                <Form.Control
-                  required
-                  name="proposer"
-                  value={formData.proposer}
-                  placeholder="Member name"
                   onChange={handleChange}
                 />
               </Form.Group>

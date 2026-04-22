@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Container } from 'react-bootstrap'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import './App.css'
@@ -7,72 +7,55 @@ import HomePage from './pages/HomePage'
 import ArchivePage from './pages/ArchivePage'
 import VotingPage from './pages/VotingPage'
 import ProgressPage from './pages/ProgressPage'
+import AuthPage from './pages/AuthPage'
 
-const initialBooks = [
-  {
-    id: crypto.randomUUID(),
-    title: 'The Seven Husbands of Evelyn Hugo',
-    author: 'Taylor Jenkins Reid',
-    monthRead: 'January 2026',
-    dateRead: '2026-01-27',
-    rating: 4.7,
-    questions: 'How does perspective change your feelings about each character?',
-    comments: 'Great character development and discussion-friendly twists.',
-  },
-  {
-    id: crypto.randomUUID(),
-    title: 'The Midnight Library',
-    author: 'Matt Haig',
-    monthRead: 'February 2026',
-    dateRead: '2026-02-23',
-    rating: 4.2,
-    questions: 'Which life path felt most realistic and why?',
-    comments: 'Some members loved the concept, others wanted more depth.',
-  },
-]
+const USERS_KEY = 'book-club-users'
+const SESSION_KEY = 'book-club-current-user'
+const BOOKS_KEY = 'book-club-books'
+const SUGGESTIONS_KEY = 'book-club-suggestions'
+const PROGRESS_KEY = 'book-club-progress'
+const VOTE_MONTH_KEY = 'book-club-vote-month'
 
-const initialSuggestions = [
-  {
-    id: crypto.randomUUID(),
-    title: 'Tomorrow, and Tomorrow, and Tomorrow',
-    author: 'Gabrielle Zevin',
-    proposer: 'Mia',
-    votes: 4,
-    month: 'May 2026',
-    status: 'suggested',
-  },
-  {
-    id: crypto.randomUUID(),
-    title: 'Circe',
-    author: 'Madeline Miller',
-    proposer: 'Jordan',
-    votes: 6,
-    month: 'May 2026',
-    status: 'suggested',
-  },
-  {
-    id: crypto.randomUUID(),
-    title: 'The Vanishing Half',
-    author: 'Brit Bennett',
-    proposer: 'Alex',
-    votes: 0,
-    month: 'June 2026',
-    status: 'future',
-  },
-]
-
-const initialProgress = [
-  { id: crypto.randomUUID(), member: 'Mia', percent: 55 },
-  { id: crypto.randomUUID(), member: 'Jordan', percent: 40 },
-  { id: crypto.randomUUID(), member: 'Alex', percent: 72 },
-  { id: crypto.randomUUID(), member: 'Sam', percent: 33 },
-]
+const readStorage = (key, fallbackValue) => {
+  try {
+    const raw = localStorage.getItem(key)
+    return raw ? JSON.parse(raw) : fallbackValue
+  } catch {
+    return fallbackValue
+  }
+}
 
 function App() {
-  const [books, setBooks] = useState(initialBooks)
-  const [suggestions, setSuggestions] = useState(initialSuggestions)
-  const [progress, setProgress] = useState(initialProgress)
-  const [currentVoteMonth, setCurrentVoteMonth] = useState('May 2026')
+  const [users, setUsers] = useState(() => readStorage(USERS_KEY, []))
+  const [currentUser, setCurrentUser] = useState(() => readStorage(SESSION_KEY, ''))
+  const [books, setBooks] = useState(() => readStorage(BOOKS_KEY, []))
+  const [suggestions, setSuggestions] = useState(() => readStorage(SUGGESTIONS_KEY, []))
+  const [progress, setProgress] = useState(() => readStorage(PROGRESS_KEY, []))
+  const [currentVoteMonth, setCurrentVoteMonth] = useState(() => readStorage(VOTE_MONTH_KEY, 'May 2026'))
+
+  useEffect(() => {
+    localStorage.setItem(USERS_KEY, JSON.stringify(users))
+  }, [users])
+
+  useEffect(() => {
+    localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser))
+  }, [currentUser])
+
+  useEffect(() => {
+    localStorage.setItem(BOOKS_KEY, JSON.stringify(books))
+  }, [books])
+
+  useEffect(() => {
+    localStorage.setItem(SUGGESTIONS_KEY, JSON.stringify(suggestions))
+  }, [suggestions])
+
+  useEffect(() => {
+    localStorage.setItem(PROGRESS_KEY, JSON.stringify(progress))
+  }, [progress])
+
+  useEffect(() => {
+    localStorage.setItem(VOTE_MONTH_KEY, JSON.stringify(currentVoteMonth))
+  }, [currentVoteMonth])
 
   const currentMonthSuggestions = useMemo(
     () =>
@@ -105,38 +88,87 @@ function App() {
     return Math.round(total / progress.length)
   }, [progress])
 
+  const signup = (username, password) => {
+    const normalized = username.toLowerCase()
+    const exists = users.some((user) => user.username.toLowerCase() === normalized)
+    if (exists) {
+      return { ok: false, message: 'That username already exists.' }
+    }
+
+    setUsers((prev) => [...prev, { username, password }])
+    setCurrentUser(username)
+    return { ok: true }
+  }
+
+  const login = (username, password) => {
+    const foundUser = users.find(
+      (user) => user.username.toLowerCase() === username.toLowerCase() && user.password === password,
+    )
+
+    if (!foundUser) {
+      return { ok: false, message: 'Invalid username or password.' }
+    }
+
+    setCurrentUser(foundUser.username)
+    return { ok: true }
+  }
+
+  const logout = () => {
+    setCurrentUser('')
+  }
+
+  const protectedElement = (element) => {
+    if (!currentUser) {
+      return <Navigate to="/auth" replace />
+    }
+    return element
+  }
+
   return (
     <div className="app-shell">
-      <AppNavbar />
+      <AppNavbar currentUser={currentUser} onLogout={logout} />
       <Container className="py-4">
         <Routes>
           <Route
+            path="/auth"
+            element={<AuthPage currentUser={currentUser} onSignup={signup} onLogin={login} />}
+          />
+          <Route
             path="/"
-            element={
+            element={protectedElement(
               <HomePage
+                currentUser={currentUser}
                 books={books}
                 currentMonthSuggestions={currentMonthSuggestions}
                 futureReads={futureReads}
                 selectedBook={selectedBook}
                 groupProgress={groupProgress}
               />
-            }
+            )}
           />
-          <Route path="/archive" element={<ArchivePage books={books} setBooks={setBooks} />} />
+          <Route
+            path="/archive"
+            element={protectedElement(
+              <ArchivePage books={books} setBooks={setBooks} currentUser={currentUser} />,
+            )}
+          />
           <Route
             path="/voting"
-            element={
+            element={protectedElement(
               <VotingPage
                 suggestions={suggestions}
                 setSuggestions={setSuggestions}
                 currentVoteMonth={currentVoteMonth}
                 setCurrentVoteMonth={setCurrentVoteMonth}
+                currentUser={currentUser}
               />
-            }
+            )}
           />
           <Route
             path="/progress"
-            element={<ProgressPage progress={progress} setProgress={setProgress} />}
+            element={protectedElement(
+              <ProgressPage progress={progress} setProgress={setProgress} currentUser={currentUser} />,
+            )}
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
