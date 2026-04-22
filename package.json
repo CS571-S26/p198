@@ -1,5 +1,5 @@
 {
-  "name": "p198",
+  "name": "book-club-hub",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "npm run build"
   },
   "dependencies": {
     "bootstrap": "^5.3.8",

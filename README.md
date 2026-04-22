@@ -1,16 +1,45 @@
-# React + Vite
+# Book Club Hub
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Book Club Hub is an interactive React web app for organizing a reading club in one place.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Reading archive with detailed entries (title, author, read dates, discussion questions, ratings, and comments)
+- Editable archive cards to update notes and group ratings
+- Monthly suggestion and voting system
+- Future Reads section for books that were not selected this month
+- Member reading progress tracker with live individual and group progress bars
+- Multi-page layout using React Router with a persistent navigation bar
+- Consistent UI built with React Bootstrap components
 
-## React Compiler
+## Pages
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- Home dashboard
+- Reading Archive
+- Monthly Suggestions & Voting
+- Reading Progress Tracker
 
-## Expanding the ESLint configuration
+## Component Coverage
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+The app includes more than 8 meaningful components (e.g. navbar, page header, forms, archive cards, suggestion cards, member progress cards, and group progress panel).
+
+## Run Locally
+
+```bash
+npm install
+npm run dev
+```
+
+## Build
+
+```bash
+npm run build
+```
+
+The production build outputs to `docs`, which can be served by GitHub Pages.
+
+## GitHub Pages Hosting Notes
+
+- Vite base path is configured as `/p128/` in `vite.config.js`
+- If your repository name is different, update that value to match your repo
+- Push the generated `docs` folder and configure GitHub Pages to serve from it
