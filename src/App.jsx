@@ -15,6 +15,7 @@ const BOOKS_KEY = 'book-club-books'
 const SUGGESTIONS_KEY = 'book-club-suggestions'
 const PROGRESS_KEY = 'book-club-progress'
 const VOTE_MONTH_KEY = 'book-club-vote-month'
+const CURRENTLY_READING_KEY = 'book-club-currently-reading'
 
 const readStorage = (key, fallbackValue) => {
   try {
@@ -32,6 +33,7 @@ function App() {
   const [suggestions, setSuggestions] = useState(() => readStorage(SUGGESTIONS_KEY, []))
   const [progress, setProgress] = useState(() => readStorage(PROGRESS_KEY, []))
   const [currentVoteMonth, setCurrentVoteMonth] = useState(() => readStorage(VOTE_MONTH_KEY, 'May 2026'))
+  const [currentlyReading, setCurrentlyReading] = useState(() => readStorage(CURRENTLY_READING_KEY, []))
 
   useEffect(() => {
     localStorage.setItem(USERS_KEY, JSON.stringify(users))
@@ -56,6 +58,10 @@ function App() {
   useEffect(() => {
     localStorage.setItem(VOTE_MONTH_KEY, JSON.stringify(currentVoteMonth))
   }, [currentVoteMonth])
+
+  useEffect(() => {
+    localStorage.setItem(CURRENTLY_READING_KEY, JSON.stringify(currentlyReading))
+  }, [currentlyReading])
 
   const currentMonthSuggestions = useMemo(
     () =>
@@ -143,6 +149,7 @@ function App() {
                 futureReads={futureReads}
                 selectedBook={selectedBook}
                 groupProgress={groupProgress}
+                currentlyReading={currentlyReading}
               />
             )}
           />
@@ -167,7 +174,13 @@ function App() {
           <Route
             path="/progress"
             element={protectedElement(
-              <ProgressPage progress={progress} setProgress={setProgress} currentUser={currentUser} />,
+              <ProgressPage
+                progress={progress}
+                setProgress={setProgress}
+                currentUser={currentUser}
+                currentlyReading={currentlyReading}
+                setCurrentlyReading={setCurrentlyReading}
+              />,
             )}
           />
           <Route path="*" element={<Navigate to="/" replace />} />

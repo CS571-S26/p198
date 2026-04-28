@@ -1,10 +1,14 @@
 import { Col, Row } from 'react-bootstrap'
+import { useLocation } from 'react-router-dom'
 import AddBookForm from '../components/AddBookForm'
 import BookArchiveCard from '../components/BookArchiveCard'
 import PageHeader from '../components/PageHeader'
 import { fetchBookCoverUrl } from '../utils/coverLookup'
 
 function ArchivePage({ books, setBooks, currentUser }) {
+  const location = useLocation()
+  const prefillBook = location.state?.prefillBook ?? null
+
   const addBook = async (bookDraft) => {
     const coverUrl = await fetchBookCoverUrl(bookDraft.title, bookDraft.author)
     const nextBook = {
@@ -38,7 +42,7 @@ function ArchivePage({ books, setBooks, currentUser }) {
         title="Reading Archive"
         subtitle="Save your club history with dates, ratings, discussion prompts, and comments."
       />
-      <AddBookForm onAddBook={addBook} currentUser={currentUser} />
+      <AddBookForm onAddBook={addBook} currentUser={currentUser} initialFormData={prefillBook} />
       <Row className="g-3">
         {books.length > 0 ? (
           books.map((book) => (

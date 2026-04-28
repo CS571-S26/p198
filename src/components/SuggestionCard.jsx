@@ -1,7 +1,14 @@
 import { Badge, Button, Card } from 'react-bootstrap'
 import BookCover from './BookCover'
 
-function SuggestionCard({ suggestion, onVote, onMoveToFuture, onMoveToCurrent, hasCurrentUserVote }) {
+function SuggestionCard({
+  suggestion,
+  onVote,
+  onMoveToFuture,
+  onMoveToCurrent,
+  onDeleteFutureRead,
+  hasCurrentUserVote,
+}) {
   return (
     <Card className="h-100">
       <Card.Body>
@@ -30,6 +37,9 @@ function SuggestionCard({ suggestion, onVote, onMoveToFuture, onMoveToCurrent, h
             <small className="text-muted">Saved for a future month.</small>
             <Button size="sm" variant="outline-primary" onClick={() => onMoveToCurrent(suggestion.id)}>
               Return to Current Ballot
+            </Button>
+            <Button size="sm" variant="outline-danger" onClick={() => onDeleteFutureRead(suggestion.id)}>
+              Delete
             </Button>
           </div>
         )}

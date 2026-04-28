@@ -9,7 +9,10 @@ function HomePage({
   futureReads,
   selectedBook,
   groupProgress,
+  currentlyReading,
 }) {
+  const currentUserReads = currentlyReading.filter((item) => item.addedBy === currentUser)
+
   return (
     <>
       <PageHeader
@@ -53,6 +56,9 @@ function HomePage({
               </p>
               <p className="mb-0 text-muted">
                 Keep adding history so your club can revisit previous discussions and ratings.
+              </p>
+              <p className="mt-3 mb-0">
+                Currently reading: <strong>{currentUserReads.length}</strong>
               </p>
             </Card.Body>
           </Card>

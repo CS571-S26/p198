@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Button, Card, Col, Form, Row } from 'react-bootstrap'
 
 const blankForm = {
@@ -11,8 +11,19 @@ const blankForm = {
   comments: '',
 }
 
-function AddBookForm({ onAddBook, currentUser }) {
+function AddBookForm({ onAddBook, currentUser, initialFormData }) {
   const [formData, setFormData] = useState(blankForm)
+
+  useEffect(() => {
+    if (!initialFormData) {
+      return
+    }
+
+    setFormData({
+      ...blankForm,
+      ...initialFormData,
+    })
+  }, [initialFormData])
 
   const handleChange = (event) => {
     const { name, value } = event.target

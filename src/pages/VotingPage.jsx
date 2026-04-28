@@ -97,6 +97,12 @@ function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentV
     )
   }
 
+  const deleteFutureRead = (suggestionId) => {
+    setSuggestions((prev) =>
+      prev.filter((suggestion) => !(suggestion.id === suggestionId && suggestion.status === 'future')),
+    )
+  }
+
   const finalizeMonth = () => {
     if (!winningSuggestion) {
       return
@@ -150,6 +156,7 @@ function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentV
                 onVote={addVote}
                 onMoveToFuture={moveToFutureReads}
                 onMoveToCurrent={moveToCurrentBallot}
+                onDeleteFutureRead={deleteFutureRead}
                 hasCurrentUserVote={currentUserVoteId === suggestion.id}
               />
             </Col>
@@ -171,6 +178,7 @@ function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentV
                 onVote={addVote}
                 onMoveToFuture={moveToFutureReads}
                 onMoveToCurrent={moveToCurrentBallot}
+                onDeleteFutureRead={deleteFutureRead}
                 hasCurrentUserVote={false}
               />
             </Col>
