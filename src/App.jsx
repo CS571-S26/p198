@@ -138,6 +138,12 @@ function App() {
       setBy: currentUser,
     })
 
+    setSuggestions((prev) =>
+      prev.map((suggestion) =>
+        suggestion.id === winningSuggestion.id ? { ...suggestion, status: 'current' } : suggestion,
+      ),
+    )
+
     // Progress now represents the active club read only.
     setProgress((prev) => prev.map((entry) => ({ ...entry, percent: 0 })))
   }

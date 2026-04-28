@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 import { Alert, Button, Card } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
 import BookCover from '../components/BookCover'
@@ -8,6 +8,19 @@ import ProgressMemberCard from '../components/ProgressMemberCard'
 
 function ProgressPage({ progress, setProgress, currentUser, clubCurrentRead, setClubCurrentRead }) {
   const navigate = useNavigate()
+
+  useEffect(() => {
+    if (clubCurrentRead) {
+      return
+    }
+
+    const hasNonZeroProgress = progress.some((entry) => entry.percent !== 0)
+    if (!hasNonZeroProgress) {
+      return
+    }
+
+    setProgress((prev) => prev.map((entry) => ({ ...entry, percent: 0 })))
+  }, [clubCurrentRead, progress, setProgress])
 
   const averageProgress = useMemo(() => {
     if (progress.length === 0) {
