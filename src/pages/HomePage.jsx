@@ -33,7 +33,7 @@ function HomePage({
               <Card.Title>Current Monthly Leader</Card.Title>
               {selectedBook ? (
                 <>
-                  <h4>{selectedBook.title}</h4>
+                  <h2 className="h4">{selectedBook.title}</h2>
                   <p className="mb-0 text-muted">
                     {selectedBook.votes} votes | Proposed by {selectedBook.proposer}
                   </p>
