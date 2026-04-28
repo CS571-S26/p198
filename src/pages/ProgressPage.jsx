@@ -1,14 +1,13 @@
-import { useMemo, useState } from 'react'
-import { Button, Card, Col, Form, ProgressBar, Row } from 'react-bootstrap'
+import { useMemo } from 'react'
+import { Alert, Button, Card } from 'react-bootstrap'
 import { useNavigate } from 'react-router-dom'
+import BookCover from '../components/BookCover'
 import GroupProgressPanel from '../components/GroupProgressPanel'
 import PageHeader from '../components/PageHeader'
 import ProgressMemberCard from '../components/ProgressMemberCard'
 
-function ProgressPage({ progress, setProgress, currentUser, currentlyReading, setCurrentlyReading }) {
+function ProgressPage({ progress, setProgress, currentUser, clubCurrentRead, setClubCurrentRead }) {
   const navigate = useNavigate()
-  const [newTitle, setNewTitle] = useState('')
-  const [newAuthor, setNewAuthor] = useState('')
 
   const averageProgress = useMemo(() => {
     if (progress.length === 0) {
@@ -40,43 +39,14 @@ function ProgressPage({ progress, setProgress, currentUser, currentlyReading, se
   }
 
   const hasCurrentUserProgress = progress.some((entry) => entry.member === currentUser)
-  const currentUserReads = currentlyReading.filter((item) => item.addedBy === currentUser)
 
-  const addCurrentlyReading = (event) => {
-    event.preventDefault()
-    if (!newTitle.trim() || !newAuthor.trim()) {
+  const markAsFinished = () => {
+    if (!clubCurrentRead) {
       return
     }
 
-    setCurrentlyReading((prev) => [
-      ...prev,
-      {
-        id: crypto.randomUUID(),
-        title: newTitle.trim(),
-        author: newAuthor.trim(),
-        percent: 0,
-        addedBy: currentUser,
-      },
-    ])
-    setNewTitle('')
-    setNewAuthor('')
-  }
-
-  const updateCurrentReadProgress = (readId, nextPercent) => {
-    setCurrentlyReading((prev) =>
-      prev.map((item) =>
-        item.id === readId && item.addedBy === currentUser ? { ...item, percent: nextPercent } : item,
-      ),
-    )
-  }
-
-  const markAsFinished = (readId) => {
-    const completedRead = currentlyReading.find((item) => item.id === readId && item.addedBy === currentUser)
-    if (!completedRead) {
-      return
-    }
-
-    setCurrentlyReading((prev) => prev.filter((item) => item.id !== readId))
+    const completedRead = clubCurrentRead
+    setClubCurrentRead(null)
 
     navigate('/archive', {
       state: {
@@ -97,8 +67,25 @@ function ProgressPage({ progress, setProgress, currentUser, currentlyReading, se
     <>
       <PageHeader
         title="Reading Progress Tracker"
-        subtitle="Update each member's completion percentage and monitor overall accountability."
+        subtitle="Progress updates apply to the one active club read selected from the voting winner."
       />
+      {clubCurrentRead ? (
+        <Card className="mb-3">
+          <Card.Header>Current Club Read</Card.Header>
+          <Card.Body>
+            <BookCover title={clubCurrentRead.title} author={clubCurrentRead.author} coverUrl={clubCurrentRead.coverUrl} />
+            <p className="h5 mb-1">{clubCurrentRead.title}</p>
+            <p className="text-muted mb-3">{clubCurrentRead.author || 'Unknown author'}</p>
+            <Button size="sm" variant="success" onClick={markAsFinished}>
+              Mark as Finished and Add to Archive
+            </Button>
+          </Card.Body>
+        </Card>
+      ) : (
+        <Alert variant="warning">
+          No current read selected. Go to Voting and choose the winning book as the current read first.
+        </Alert>
+      )}
       {!hasCurrentUserProgress ? (
         <Button className="mb-3" onClick={addCurrentUserProgress}>
           Create My Progress Entry
@@ -110,66 +97,9 @@ function ProgressPage({ progress, setProgress, currentUser, currentlyReading, se
           key={memberProgress.id}
           memberProgress={memberProgress}
           onUpdatePercent={updateMemberProgress}
-          canEdit={memberProgress.member === currentUser}
+          canEdit={memberProgress.member === currentUser && Boolean(clubCurrentRead)}
         />
       ))}
-      <Card className="mb-4">
-        <Card.Header>Currently Reading</Card.Header>
-        <Card.Body>
-          <Form onSubmit={addCurrentlyReading} className="mb-3">
-            <Row className="g-2">
-              <Col md={5}>
-                <Form.Control
-                  value={newTitle}
-                  onChange={(event) => setNewTitle(event.target.value)}
-                  placeholder="Book title"
-                  aria-label="Currently reading title"
-                />
-              </Col>
-              <Col md={5}>
-                <Form.Control
-                  value={newAuthor}
-                  onChange={(event) => setNewAuthor(event.target.value)}
-                  placeholder="Author"
-                  aria-label="Currently reading author"
-                />
-              </Col>
-              <Col md={2}>
-                <Button type="submit" className="w-100">
-                  Add
-                </Button>
-              </Col>
-            </Row>
-          </Form>
-
-          {currentUserReads.length > 0 ? (
-            currentUserReads.map((item) => (
-              <Card key={item.id} className="mb-3">
-                <Card.Body>
-                  <div className="d-flex justify-content-between align-items-center mb-2">
-                    <div>
-                      <strong>{item.title}</strong>
-                      <div className="text-muted small">{item.author}</div>
-                    </div>
-                    <Button size="sm" variant="success" onClick={() => markAsFinished(item.id)}>
-                      Mark as Finished
-                    </Button>
-                  </div>
-                  <Form.Range
-                    min={0}
-                    max={100}
-                    value={item.percent}
-                    onChange={(event) => updateCurrentReadProgress(item.id, Number(event.target.value))}
-                  />
-                  <ProgressBar now={item.percent} label={`${item.percent}%`} />
-                </Card.Body>
-              </Card>
-            ))
-          ) : (
-            <p className="text-muted mb-0">No active reads yet. Add one above to start tracking it.</p>
-          )}
-        </Card.Body>
-      </Card>
       <Card>
         <Card.Body className="text-muted">
           Tip: set a weekly checkpoint in your meetings and update this page together.

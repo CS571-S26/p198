@@ -5,7 +5,15 @@ import SuggestionCard from '../components/SuggestionCard'
 import SuggestionForm from '../components/SuggestionForm'
 import { fetchBookCoverUrl } from '../utils/coverLookup'
 
-function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentVoteMonth, currentUser }) {
+function VotingPage({
+  suggestions,
+  setSuggestions,
+  currentVoteMonth,
+  setCurrentVoteMonth,
+  currentUser,
+  onSetCurrentRead,
+  clubCurrentRead,
+}) {
   const monthlySuggestions = useMemo(
     () =>
       suggestions.filter(
@@ -142,9 +150,22 @@ function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentV
           ? `Current leader for ${currentVoteMonth}: ${winningSuggestion.title} (${winningSuggestion.votes} votes)`
           : `No active suggestions yet for ${currentVoteMonth}.`}
       </Alert>
+      <Button
+        className="me-2 mb-4"
+        variant="primary"
+        onClick={() => onSetCurrentRead(winningSuggestion)}
+        disabled={!winningSuggestion}
+      >
+        Set Winning Book as Current Read
+      </Button>
       <Button className="mb-4" variant="success" onClick={finalizeMonth} disabled={!winningSuggestion}>
         Finalize Month and Move Remaining Books to Future Reads
       </Button>
+      {clubCurrentRead ? (
+        <p className="text-muted mb-4">
+          Current read is set to <strong>{clubCurrentRead.title}</strong>.
+        </p>
+      ) : null}
 
       <h2 className="section-title">Current Ballot</h2>
       <Row className="g-3 mb-4">

@@ -15,7 +15,7 @@ const BOOKS_KEY = 'book-club-books'
 const SUGGESTIONS_KEY = 'book-club-suggestions'
 const PROGRESS_KEY = 'book-club-progress'
 const VOTE_MONTH_KEY = 'book-club-vote-month'
-const CURRENTLY_READING_KEY = 'book-club-currently-reading'
+const CLUB_CURRENT_READ_KEY = 'book-club-current-read'
 
 const readStorage = (key, fallbackValue) => {
   try {
@@ -33,7 +33,7 @@ function App() {
   const [suggestions, setSuggestions] = useState(() => readStorage(SUGGESTIONS_KEY, []))
   const [progress, setProgress] = useState(() => readStorage(PROGRESS_KEY, []))
   const [currentVoteMonth, setCurrentVoteMonth] = useState(() => readStorage(VOTE_MONTH_KEY, 'May 2026'))
-  const [currentlyReading, setCurrentlyReading] = useState(() => readStorage(CURRENTLY_READING_KEY, []))
+  const [clubCurrentRead, setClubCurrentRead] = useState(() => readStorage(CLUB_CURRENT_READ_KEY, null))
 
   useEffect(() => {
     localStorage.setItem(USERS_KEY, JSON.stringify(users))
@@ -60,8 +60,8 @@ function App() {
   }, [currentVoteMonth])
 
   useEffect(() => {
-    localStorage.setItem(CURRENTLY_READING_KEY, JSON.stringify(currentlyReading))
-  }, [currentlyReading])
+    localStorage.setItem(CLUB_CURRENT_READ_KEY, JSON.stringify(clubCurrentRead))
+  }, [clubCurrentRead])
 
   const currentMonthSuggestions = useMemo(
     () =>
@@ -123,6 +123,25 @@ function App() {
     setCurrentUser('')
   }
 
+  const selectCurrentReadFromWinner = (winningSuggestion) => {
+    if (!winningSuggestion) {
+      return
+    }
+
+    setClubCurrentRead({
+      id: crypto.randomUUID(),
+      title: winningSuggestion.title,
+      author: winningSuggestion.author,
+      coverUrl: winningSuggestion.coverUrl ?? '',
+      sourceSuggestionId: winningSuggestion.id,
+      setAt: new Date().toISOString(),
+      setBy: currentUser,
+    })
+
+    // Progress now represents the active club read only.
+    setProgress((prev) => prev.map((entry) => ({ ...entry, percent: 0 })))
+  }
+
   const protectedElement = (element) => {
     if (!currentUser) {
       return <Navigate to="/auth" replace />
@@ -149,7 +168,7 @@ function App() {
                 futureReads={futureReads}
                 selectedBook={selectedBook}
                 groupProgress={groupProgress}
-                currentlyReading={currentlyReading}
+                clubCurrentRead={clubCurrentRead}
               />
             )}
           />
@@ -168,6 +187,8 @@ function App() {
                 currentVoteMonth={currentVoteMonth}
                 setCurrentVoteMonth={setCurrentVoteMonth}
                 currentUser={currentUser}
+                onSetCurrentRead={selectCurrentReadFromWinner}
+                clubCurrentRead={clubCurrentRead}
               />
             )}
           />
@@ -178,8 +199,8 @@ function App() {
                 progress={progress}
                 setProgress={setProgress}
                 currentUser={currentUser}
-                currentlyReading={currentlyReading}
-                setCurrentlyReading={setCurrentlyReading}
+                clubCurrentRead={clubCurrentRead}
+                setClubCurrentRead={setClubCurrentRead}
               />,
             )}
           />
