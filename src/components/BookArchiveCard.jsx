@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Badge, Button, Card, Form } from 'react-bootstrap'
+import BookCover from './BookCover'
 
 function BookArchiveCard({ book, onSaveEdit }) {
   const [isEditing, setIsEditing] = useState(false)
@@ -24,22 +25,7 @@ function BookArchiveCard({ book, onSaveEdit }) {
           </div>
           <Badge bg="secondary">{book.monthRead || 'No month set'}</Badge>
         </div>
-        {book.coverUrl ? (
-          <img
-            src={book.coverUrl}
-            alt={`Book cover for ${book.title}`}
-            className="mb-3 rounded"
-            style={{ width: '96px', height: '140px', objectFit: 'cover' }}
-          />
-        ) : (
-          <div
-            className="mb-3 rounded border d-inline-flex align-items-center justify-content-center text-muted"
-            style={{ width: '96px', height: '140px', fontSize: '0.8rem' }}
-            aria-label={`No cover available for ${book.title}`}
-          >
-            No Cover
-          </div>
-        )}
+        <BookCover title={book.title} author={book.author} coverUrl={book.coverUrl} />
         <p className="small mb-2">
           Finished: {book.dateRead || 'Not added'} | Group Rating: {Number(book.rating).toFixed(1)} / 5
         </p>
