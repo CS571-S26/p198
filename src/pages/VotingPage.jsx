@@ -26,6 +26,13 @@ function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentV
     return [...monthlySuggestions].sort((a, b) => b.votes - a.votes)[0]
   }, [monthlySuggestions])
 
+  const currentUserVoteId = useMemo(() => {
+    const votedSuggestion = monthlySuggestions.find((suggestion) =>
+      (suggestion.voters ?? []).includes(currentUser),
+    )
+    return votedSuggestion?.id ?? null
+  }, [monthlySuggestions, currentUser])
+
   const addSuggestion = (suggestionDraft) => {
     setSuggestions((prev) => [
       ...prev,
@@ -34,6 +41,7 @@ function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentV
         ...suggestionDraft,
         proposer: currentUser,
         votes: 0,
+        voters: [],
         status: 'suggested',
       },
     ])
@@ -41,9 +49,22 @@ function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentV
 
   const addVote = (suggestionId) => {
     setSuggestions((prev) =>
-      prev.map((suggestion) =>
-        suggestion.id === suggestionId ? { ...suggestion, votes: suggestion.votes + 1 } : suggestion,
-      ),
+      prev.map((suggestion) => {
+        if (suggestion.month !== currentVoteMonth || suggestion.status !== 'suggested') {
+          return suggestion
+        }
+
+        const existingVoters = suggestion.voters ?? []
+        const withoutCurrentUser = existingVoters.filter((voter) => voter !== currentUser)
+        const nextVoters =
+          suggestion.id === suggestionId ? [...withoutCurrentUser, currentUser] : withoutCurrentUser
+
+        return {
+          ...suggestion,
+          voters: nextVoters,
+          votes: nextVoters.length,
+        }
+      }),
     )
   }
 
@@ -52,6 +73,24 @@ function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentV
       prev.map((suggestion) =>
         suggestion.id === suggestionId ? { ...suggestion, status: 'future' } : suggestion,
       ),
+    )
+  }
+
+  const moveToCurrentBallot = (suggestionId) => {
+    setSuggestions((prev) =>
+      prev.map((suggestion) => {
+        if (suggestion.id !== suggestionId) {
+          return suggestion
+        }
+
+        return {
+          ...suggestion,
+          status: 'suggested',
+          month: currentVoteMonth,
+          voters: [],
+          votes: 0,
+        }
+      }),
     )
   }
 
@@ -107,6 +146,8 @@ function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentV
                 suggestion={suggestion}
                 onVote={addVote}
                 onMoveToFuture={moveToFutureReads}
+                onMoveToCurrent={moveToCurrentBallot}
+                hasCurrentUserVote={currentUserVoteId === suggestion.id}
               />
             </Col>
           ))
@@ -122,7 +163,13 @@ function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentV
         {futureReads.length > 0 ? (
           futureReads.map((suggestion) => (
             <Col key={suggestion.id} lg={6}>
-              <SuggestionCard suggestion={suggestion} onVote={addVote} onMoveToFuture={moveToFutureReads} />
+              <SuggestionCard
+                suggestion={suggestion}
+                onVote={addVote}
+                onMoveToFuture={moveToFutureReads}
+                onMoveToCurrent={moveToCurrentBallot}
+                hasCurrentUserVote={false}
+              />
             </Col>
           ))
         ) : (
