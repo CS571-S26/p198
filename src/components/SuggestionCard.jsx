@@ -13,6 +13,22 @@ function SuggestionCard({ suggestion, onVote, onMoveToFuture, onMoveToCurrent, h
             {suggestion.status === 'future' ? 'Future Read' : `${suggestion.votes} votes`}
           </Badge>
         </div>
+        {suggestion.coverUrl ? (
+          <img
+            src={suggestion.coverUrl}
+            alt={`Book cover for ${suggestion.title}`}
+            className="mb-3 rounded"
+            style={{ width: '96px', height: '140px', objectFit: 'cover' }}
+          />
+        ) : (
+          <div
+            className="mb-3 rounded border d-inline-flex align-items-center justify-content-center text-muted"
+            style={{ width: '96px', height: '140px', fontSize: '0.8rem' }}
+            aria-label={`No cover available for ${suggestion.title}`}
+          >
+            No Cover
+          </div>
+        )}
         <p className="mb-3">Proposed by {suggestion.proposer}</p>
         {suggestion.status === 'suggested' ? (
           <div className="d-flex gap-2">

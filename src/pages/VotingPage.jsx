@@ -3,6 +3,7 @@ import { Alert, Button, Col, Form, Row } from 'react-bootstrap'
 import PageHeader from '../components/PageHeader'
 import SuggestionCard from '../components/SuggestionCard'
 import SuggestionForm from '../components/SuggestionForm'
+import { fetchBookCoverUrl } from '../utils/coverLookup'
 
 function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentVoteMonth, currentUser }) {
   const monthlySuggestions = useMemo(
@@ -33,12 +34,14 @@ function VotingPage({ suggestions, setSuggestions, currentVoteMonth, setCurrentV
     return votedSuggestion?.id ?? null
   }, [monthlySuggestions, currentUser])
 
-  const addSuggestion = (suggestionDraft) => {
+  const addSuggestion = async (suggestionDraft) => {
+    const coverUrl = await fetchBookCoverUrl(suggestionDraft.title, suggestionDraft.author)
     setSuggestions((prev) => [
       ...prev,
       {
         id: crypto.randomUUID(),
         ...suggestionDraft,
+        coverUrl,
         proposer: currentUser,
         votes: 0,
         voters: [],
