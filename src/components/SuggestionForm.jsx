@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Button, Card, Col, Form, Row } from 'react-bootstrap'
+import { buildMonthYearOptions } from '../utils/monthOptions'
 
 const emptySuggestion = {
   title: '',
@@ -7,8 +8,12 @@ const emptySuggestion = {
   month: '',
 }
 
-function SuggestionForm({ onAddSuggestion, currentUser }) {
+function SuggestionForm({ onAddSuggestion, currentUser, monthOptions, defaultMonth }) {
   const [formData, setFormData] = useState(emptySuggestion)
+  const votingMonthOptions = useMemo(
+    () => monthOptions ?? buildMonthYearOptions(24),
+    [monthOptions],
+  )
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -18,11 +23,15 @@ function SuggestionForm({ onAddSuggestion, currentUser }) {
   const handleSubmit = (event) => {
     event.preventDefault()
 
-    if (!formData.title.trim() || !formData.month.trim()) {
+    const monthValue = formData.month || defaultMonth || votingMonthOptions[0] || ''
+    if (!formData.title.trim() || !monthValue) {
       return
     }
 
-    onAddSuggestion(formData)
+    onAddSuggestion({
+      ...formData,
+      month: monthValue,
+    })
     setFormData(emptySuggestion)
   }
 
@@ -59,13 +68,19 @@ function SuggestionForm({ onAddSuggestion, currentUser }) {
             <Col md={6}>
               <Form.Group controlId="proposalMonth">
                 <Form.Label>Voting Month</Form.Label>
-                <Form.Control
-                  required
+                <Form.Select
+                  aria-label="Select voting month"
                   name="month"
                   value={formData.month}
-                  placeholder="May 2026"
                   onChange={handleChange}
-                />
+                >
+                  <option value="">Select month</option>
+                  {votingMonthOptions.map((month) => (
+                    <option key={month} value={month}>
+                      {month}
+                    </option>
+                  ))}
+                </Form.Select>
               </Form.Group>
             </Col>
             <Col xs={12}>

@@ -4,6 +4,7 @@ import PageHeader from '../components/PageHeader'
 import SuggestionCard from '../components/SuggestionCard'
 import SuggestionForm from '../components/SuggestionForm'
 import { fetchBookCoverUrl } from '../utils/coverLookup'
+import { buildMonthYearOptions } from '../utils/monthOptions'
 
 function VotingPage({
   suggestions,
@@ -14,6 +15,14 @@ function VotingPage({
   onSetCurrentRead,
   clubCurrentRead,
 }) {
+  const monthOptions = useMemo(() => {
+    const generated = buildMonthYearOptions(24)
+    if (currentVoteMonth && !generated.includes(currentVoteMonth)) {
+      return [currentVoteMonth, ...generated]
+    }
+    return generated
+  }, [currentVoteMonth])
+
   const monthlySuggestions = useMemo(
     () =>
       suggestions.filter(
@@ -134,15 +143,26 @@ function VotingPage({
         title="Monthly Suggestions & Voting"
         subtitle="Members can submit proposals, vote, and preserve non-selected books for later."
       />
-      <SuggestionForm onAddSuggestion={addSuggestion} currentUser={currentUser} />
+      <SuggestionForm
+        onAddSuggestion={addSuggestion}
+        currentUser={currentUser}
+        monthOptions={monthOptions}
+        defaultMonth={currentVoteMonth}
+      />
 
       <Form.Group className="mb-3" controlId="votingMonth">
         <Form.Label>Active Voting Month</Form.Label>
-        <Form.Control
+        <Form.Select
+          aria-label="Select active voting month"
           value={currentVoteMonth}
-          placeholder="May 2026"
           onChange={(event) => setCurrentVoteMonth(event.target.value)}
-        />
+        >
+          {monthOptions.map((month) => (
+            <option key={month} value={month}>
+              {month}
+            </option>
+          ))}
+        </Form.Select>
       </Form.Group>
 
       <Alert variant="info">
